@@ -175,7 +175,7 @@ def load_examples():
         reader = tf.WholeFileReader()
         paths, contents = reader.read(path_queue)
         raw_input = decode(contents)
-        raw_input = tf.image.convert_image_dtype(raw_input, dtype=tf.float16)
+        raw_input = tf.image.convert_image_dtype(raw_input, dtype=tf.float32)
 
         assertion = tf.assert_equal(tf.shape(raw_input)[2], 3, message="image does not have 3 channels")
         with tf.control_dependencies([assertion]):
@@ -186,10 +186,11 @@ def load_examples():
         # break apart image pair and move to range [-1, 1]
         width = tf.shape(raw_input)[1] # [height, width, channels]
         a_images = preprocess(raw_input[:,:width//2,:])
-        b_images = preprocess(raw_input[:,width//2:,0])  # binaray image 
+        b_images = preprocess(raw_input[:,width//2:,:])  # binaray image 
 
 
     inputs, targets = [a_images, b_images]
+    targets = tf.image.rgb_to_grayscale(targets)     # to make it binary 
 
     # synchronize seed for image operations so that we do the same operations to both
     # input and output images
@@ -200,7 +201,7 @@ def load_examples():
         # assume we're going to be doing downscaling here
         r = tf.image.resize_images(r, [a.scale_size, a.scale_size], method=tf.image.ResizeMethod.AREA)
 
-        offset = tf.cast(tf.floor(tf.random_uniform([2], 0, a.scale_size - CROP_SIZE + 1, seed=seed)), dtype=tf.int16)
+        offset = tf.cast(tf.floor(tf.random_uniform([2], 0, a.scale_size - CROP_SIZE + 1, seed=seed)), dtype=tf.int32)
         if a.scale_size > CROP_SIZE:
             r = tf.image.crop_to_bounding_box(r, offset[0], offset[1], CROP_SIZE, CROP_SIZE)
         elif a.scale_size < CROP_SIZE:

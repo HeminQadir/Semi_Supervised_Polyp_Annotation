@@ -3,28 +3,28 @@
 # Train the parent for 25 epoch or to your desired epoch first 
 epoch=25
 
-python pix2pix_mine2.py \
+# Training 
+python train_or_test.py \
   --mode train \
-  --output_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/Trained_Model/$epoch \
-  --max_epochs $i \
-  --input_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/Training_Set/Combine
+  --output_dir ./parent_model/$epoch \
+  --max_epochs $epoch \
+  --input_dir /home/hemin/Desktop/DataSet_For_Semi_Automatic/Polyp_NonPolyp/Images
 
 
 # take more epochs one after another, starting from the previous epoch 
-epoch="25 50 100 200" 
+epoch="25 50" 
 epochs=( $epoch )
 j=0
 
-for i in 50 100 200 400
+for i in 50 100
 do
-
 # Training 
-python pix2pix_mine2.py \
+python train_or_test.py \
   --mode train \
-  --output_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/Trained_Model/$i \
+  --output_dir ./parent_model/$i \
   --max_epochs $i \
-  --input_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/Training_Set/Combine \
-  --checkpoint /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/Trained_Model/${epochs[j]} 
+  --input_dir /home/hemin/Desktop/DataSet_For_Semi_Automatic/Polyp_NonPolyp/Images \
+  --checkpoint ./parent_model/${epochs[j]} 
 let j=$j+1
 done
 

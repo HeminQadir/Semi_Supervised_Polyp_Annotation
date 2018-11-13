@@ -1,0 +1,9 @@
+#!/bin/bash
+
+
+
+python tools/process.py \
+  --input_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/2nd_trial/Collected_Images/Original \
+  --b_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/2nd_trial/Collected_Images/GT \
+  --operation combine \
+  --output_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/2nd_trial/Collected_Images/Combine

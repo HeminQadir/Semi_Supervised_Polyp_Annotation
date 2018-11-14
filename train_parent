@@ -12,7 +12,7 @@ python train_or_test.py \
 
 
 # take more epochs one after another, starting from the previous epoch 
-epoch="25 50" 
+epoch="25 50"         # the previous trained epoch and the new interested epochs except the last epoch
 epochs=( $epoch )
 j=0
 

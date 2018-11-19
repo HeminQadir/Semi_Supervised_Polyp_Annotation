@@ -1,0 +1,89 @@
+#!/bin/bash
+
+making_all=false
+augemnation=false
+make_dataset=false
+train_first=true
+train=true
+
+for v in 2 3 4 5 6 7 8 9 10
+do 
+
+# making All_Frames 
+if [ "$making_all" == true ]; then
+python tools/process.py \
+  --input_dir /media/hemin/Data/Video_Test_Set/RGB_Version/$v/Original \
+  --gt_dir /media/hemin/Data/Video_Test_Set/RGB_Version/$v/GT \
+  --operation combine \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/All_Frames/Combine
+fi 
+
+
+# apply augmenataion 
+if [ "$augemnation" == true ]; then
+python tools/augmentation.py \
+  --load_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v \
+  --save_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/augmented
+fi 
+
+
+# making the dataset 
+if [ "$make_dataset" == true ]; then
+python tools/process.py \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/augmented/Original \
+  --gt_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/augmented/GT \
+  --operation combine \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/augmented/Combine
+fi 
+
+
+# Fine-tuning the parent model and test 
+if [ "$train_first" == true ]; then
+epoch=25
+# Training for 25 epochs 
+python train_or_test.py \
+  --mode train \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/Trained_model/$epoch \
+  --max_epochs $epoch \
+  --checkpoint /home/hemin/Semi_Supervised_Polyp_Annotation/parent_model/100 \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/augmented/Combine 
+
+# Testing the 25 epochs 
+python train_or_test.py \
+  --mode test \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/Results/$epoch \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/All_Frames/Combine \
+  --checkpoint /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/Trained_model/$epoch
+fi 
+
+
+# Training other epochs 
+epoch="25 50 100" 
+epochs=( $epoch )
+j=0
+
+if [ "$train" == true ]; then
+for i in 50 100 200
+do
+python train_or_test.py \
+  --mode train \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/Trained_model/$i \
+  --max_epochs $i \
+  --checkpoint /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/Trained_model/${epochs[j]} \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/augmented/Combine 
+
+
+# Testing other epochs 
+python train_or_test.py \
+  --mode test \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/Results/$i \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/All_Frames/Combine \
+  --checkpoint /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/Trained_model/$i
+
+let j=$j+1
+done
+fi
+
+done
+
+

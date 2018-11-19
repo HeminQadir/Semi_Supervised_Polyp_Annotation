@@ -1,0 +1,79 @@
+#!/bin/bash
+
+
+augemnation=true
+make_dataset=true
+train_first=true
+train=true
+
+for v in 1
+do 
+
+# apply augmenataion 
+if [ "$augemnation" == true ]; then
+python tools/augmentation.py \
+  --load_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail \
+  --save_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/augmented
+fi 
+
+
+# making the dataset 
+if [ "$make_dataset" == true ]; then
+python tools/process.py \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/augmented/Original \
+  --gt_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/augmented/GT \
+  --operation combine \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/augmented/Combine
+fi 
+
+
+# Fine-tuning the parent model and test 
+if [ "$train_first" == true ]; then
+epoch=25
+# Training for 25 epochs 
+python train_or_test.py \
+  --mode train \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/Trained_model/$epoch \
+  --max_epochs $epoch \
+  --checkpoint /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_1/300/Trained_model/100 \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/augmented/Combine 
+
+# Testing the 25 epochs 
+python train_or_test.py \
+  --mode test \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/Results/$epoch \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/All_Frames/Combine \
+  --checkpoint /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/Trained_model/$epoch
+fi 
+
+
+# Training other epochs 
+epoch="25 50 100" 
+epochs=( $epoch )
+j=0
+
+if [ "$train" == true ]; then
+for i in 50 100 200
+do
+python train_or_test.py \
+  --mode train \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/Trained_model/$i \
+  --max_epochs $i \
+  --checkpoint /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/Trained_model/${epochs[j]} \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/augmented/Combine 
+
+
+# Testing other epochs 
+python train_or_test.py \
+  --mode test \
+  --output_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/Results/$i \
+  --input_dir /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/All_Frames/Combine \
+  --checkpoint /home/hemin/Desktop/Annoataion_Work/Each_Video/Video_$v/second_trail/Trained_model/$i
+
+let j=$j+1
+done
+fi
+
+done
+
+

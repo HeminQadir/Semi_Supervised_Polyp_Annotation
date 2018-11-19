@@ -2,8 +2,12 @@
 
 
 
+# making the dataset 
+
+
 python tools/process.py \
-  --input_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/2nd_trial/Collected_Images/Original \
-  --b_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/2nd_trial/Collected_Images/GT \
+  --input_dir /home/hemin/Desktop/DataSet_For_Semi_Automatic/612/Polyp/Original \
+  --gt_dir /home/hemin/Desktop/DataSet_For_Semi_Automatic/612/Polyp/GT \
   --operation combine \
-  --output_dir /home/hemin/Desktop/Semi_Automatic_OSVOS/Video_1/per20_correct_aug/2nd_trial/Collected_Images/Combine
+  --output_dir /home/hemin/Desktop/DataSet_For_Semi_Automatic/612/Polyp/Combine
+

@@ -3,13 +3,12 @@
 # Train the parent for 25 epoch or to your desired epoch first 
 epoch=25
 
-# Training 
+# Training for 25 epochs 
 python train_or_test.py \
   --mode train \
   --output_dir ./parent_model/$epoch \
   --max_epochs $epoch \
-  --input_dir /home/hemin/Desktop/DataSet_For_Semi_Automatic/Polyp_NonPolyp/Images
-
+  --input_dir /home/hemin/Desktop/DataSet_For_Semi_Automatic/612/Polyp_NonPolyp/Images
 
 # take more epochs one after another, starting from the previous epoch 
 epoch="25 50"         # the previous trained epoch and the new interested epochs except the last epoch
@@ -23,7 +22,7 @@ python train_or_test.py \
   --mode train \
   --output_dir ./parent_model/$i \
   --max_epochs $i \
-  --input_dir /home/hemin/Desktop/DataSet_For_Semi_Automatic/Polyp_NonPolyp/Images \
+  --input_dir /home/hemin/Desktop/DataSet_For_Semi_Automatic/612/Polyp_NonPolyp/Images \
   --checkpoint ./parent_model/${epochs[j]} 
 let j=$j+1
 done

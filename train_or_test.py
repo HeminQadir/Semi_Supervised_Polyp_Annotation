@@ -175,22 +175,25 @@ def load_examples():
         reader = tf.WholeFileReader()
         paths, contents = reader.read(path_queue)
         raw_input = decode(contents)
-        raw_input = tf.image.convert_image_dtype(raw_input, dtype=tf.float32)
+        raw_input = tf.image.convert_image_dtype(raw_input, dtype=tf.float16)
 
         assertion = tf.assert_equal(tf.shape(raw_input)[2], 3, message="image does not have 3 channels")
         with tf.control_dependencies([assertion]):
             raw_input = tf.identity(raw_input)
 
         raw_input.set_shape([None, None, 3])
-
+        
+        width = tf.shape(raw_input)[1] # [height, width, channels]      
+        rgb_images = raw_input[:,:width//2,:]
+        gt_images = raw_input[:,width//2:,:]
+        # to make it binary 
+        gt_images = tf.image.rgb_to_grayscale(gt_images)  
+        gt_images = tf.where(gt_images>0.5, tf.ones_like(gt_images), tf.zeros_like(gt_images))
         # break apart image pair and move to range [-1, 1]
-        width = tf.shape(raw_input)[1] # [height, width, channels]
-        a_images = preprocess(raw_input[:,:width//2,:])
-        b_images = preprocess(raw_input[:,width//2:,:])  # binaray image 
+        a_images = preprocess(rgb_images)
+        b_images = preprocess(gt_images)  # binaray image 
 
-
-    inputs, targets = [a_images, b_images]
-    targets = tf.image.rgb_to_grayscale(targets)     # to make it binary 
+    inputs, targets = [a_images, b_images] 
 
     # synchronize seed for image operations so that we do the same operations to both
     # input and output images

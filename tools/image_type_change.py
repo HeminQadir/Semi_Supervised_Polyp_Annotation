@@ -62,15 +62,16 @@ gt_images = os.listdir(a.GT_dir)
 # if the image names are numbers, sort by the value rather than asciibetically
 # having sorted inputs means that the outputs are sorted in test mode
 if all(get_name(path).isdigit() for path in rgb_images):
+    # the lambda function has to be replace for other set of dataset. mine is 'im#.tiff'
     gt_images = sorted(gt_images, key=lambda path: int(get_name(path)))
 else:
+    # the lambda function has to be replace for other set of dataset. mine is 'p#.tiff'
     gt_images = sorted(gt_images, key = lambda x: int(x[1:].split(".")[0]))
 j = 1
 for i in gt_images:
     print('change image number: {}'.format(j))
     gt_image = cv2.imread(os.path.join(a.GT_dir,i))
     
-    cv2.imwrite(os.path.join(a.
-                             output_dir, 'GT', str(j) + a.output_filetype), gt_image)
+    cv2.imwrite(os.path.join(a.output_dir, 'GT', str(j) + a.output_filetype), gt_image)
     
     j +=1

@@ -1,4 +1,4 @@
 #!/bin/bash
 
 
-tensorboard --logdir=./parent_model
+tensorboard --logdir=/home/hemin/Desktop/Annoataion_Work/Each_Video/Video_1/second_trail/Trained_model
